@@ -32,66 +32,49 @@ const categoryIcons = {
   mall: ShoppingBag,
 };
 
-// Convert EPSG:3857 (Web Mercator) to WGS84 (lng, lat)
-const webMercatorToWGS84 = (x: number, y: number): [number, number] => {
-  const lng = (x / 20037508.34) * 180;
-  const lat = (Math.atan(Math.exp((y / 20037508.34) * Math.PI)) * 360) / Math.PI - 90;
-  return [lng, lat];
-};
+// Calculate image coordinates from bottom corners and aspect ratio
+const calculateImageCoordinates = (
+  imageWidth: number,
+  imageHeight: number
+): [[number, number], [number, number], [number, number], [number, number]] => {
+  // Bottom-right: 14°22'43.50"N, 120°54'42.31"E
+  const bottomRightLat = 14 + 22 / 60 + 43.50 / 3600; // 14.378750
+  const bottomRightLng = 120 + 54 / 60 + 42.31 / 3600; // 120.911753
 
-// PGW file data (EPSG:3857 / Web Mercator)
-// Line 1: pixel size in X direction (map units per pixel)
-// Line 2: rotation about Y axis (usually 0)
-// Line 3: rotation about X axis (usually 0)
-// Line 4: pixel size in Y direction (negative = Y decreases as row increases)
-// Line 5: X coordinate of the CENTER of the upper-left pixel
-// Line 6: Y coordinate of the CENTER of the upper-left pixel
-const PGW = {
-  A: 0.2277137518961,                 // pixel width in map units (meters)
-  D: 0.0,                              // rotation term (usually 0)
-  B: 0.0,                              // rotation term (usually 0)
-  E: -0.2277137518961,                // pixel height in map units (negative)
-  C: 13459153.5165373254567,          // X coord of upper-left pixel center
-  F: 1617950.5563744110987,           // Y coord of upper-left pixel center
-};
+  // Bottom-left: 14°22'37.22"N, 120°54'23.00"E
+  const bottomLeftLat = 14 + 22 / 60 + 37.22 / 3600; // 14.377006
+  const bottomLeftLng = 120 + 54 / 60 + 23.00 / 3600; // 120.906389
 
-// Calculate image bounds from PGW and actual image dimensions
-const calculateImageBoundsFromPGW = (imageWidth: number, imageHeight: number): [[number, number], [number, number], [number, number], [number, number]] => {
-  // The PGW gives the center of the upper-left pixel
-  // We need to find the actual corner of the image (edge of first pixel)
-  
-  // Upper-left corner (edge, not center)
-  const ulX = PGW.C - PGW.A / 2;
-  const ulY = PGW.F - PGW.E / 2; // E is negative, so this adds
-  
-  // Upper-right corner
-  const urX = ulX + imageWidth * PGW.A;
-  const urY = ulY + imageWidth * PGW.D; // D is 0 if no rotation
-  
-  // Lower-left corner
-  const llX = ulX + imageHeight * PGW.B; // B is 0 if no rotation
-  const llY = ulY + imageHeight * PGW.E; // E is negative
-  
-  // Lower-right corner
-  const lrX = ulX + imageWidth * PGW.A + imageHeight * PGW.B;
-  const lrY = ulY + imageWidth * PGW.D + imageHeight * PGW.E;
-  
-  // Convert to WGS84 [lng, lat]
-  const topLeft = webMercatorToWGS84(ulX, ulY);
-  const topRight = webMercatorToWGS84(urX, urY);
-  const bottomRight = webMercatorToWGS84(lrX, lrY);
-  const bottomLeft = webMercatorToWGS84(llX, llY);
-  
-  console.log('PGW bounds calculation:');
-  console.log('Image dimensions:', imageWidth, 'x', imageHeight);
-  console.log('Upper-left (EPSG:3857):', ulX, ulY);
-  console.log('Lower-right (EPSG:3857):', lrX, lrY);
-  console.log('Coordinates (WGS84):');
+  // Calculate the bottom edge vector
+  const bottomDx = bottomRightLng - bottomLeftLng;
+  const bottomDy = bottomRightLat - bottomLeftLat;
+  const bottomLength = Math.sqrt(bottomDx * bottomDx + bottomDy * bottomDy);
+
+  // Calculate height based on aspect ratio
+  const aspectRatio = imageWidth / imageHeight;
+  const heightInDegrees = bottomLength / aspectRatio;
+
+  // Calculate perpendicular vector (rotate 90 degrees counter-clockwise for "up")
+  const perpX = -bottomDy / bottomLength;
+  const perpY = bottomDx / bottomLength;
+
+  // Calculate top corners
+  const topLeftLng = bottomLeftLng + perpX * heightInDegrees;
+  const topLeftLat = bottomLeftLat + perpY * heightInDegrees;
+  const topRightLng = bottomRightLng + perpX * heightInDegrees;
+  const topRightLat = bottomRightLat + perpY * heightInDegrees;
+
+  const topLeft: [number, number] = [topLeftLng, topLeftLat];
+  const topRight: [number, number] = [topRightLng, topRightLat];
+  const bottomRight: [number, number] = [bottomRightLng, bottomRightLat];
+  const bottomLeft: [number, number] = [bottomLeftLng, bottomLeftLat];
+
+  console.log('Image coordinates (WGS84):');
   console.log('  Top-left:', topLeft);
   console.log('  Top-right:', topRight);
   console.log('  Bottom-right:', bottomRight);
   console.log('  Bottom-left:', bottomLeft);
-  
+
   // MapLibre expects: [top-left, top-right, bottom-right, bottom-left]
   return [topLeft, topRight, bottomRight, bottomLeft];
 };
@@ -149,34 +132,33 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
           (f: any) => f.geometry.type === 'Polygon' && f.properties.text === 'Yume at Riverparks'
         );
 
-        // Load the georeferenced image to get its exact dimensions
-        const loadGeoreferencedImage = (): Promise<[[number, number], [number, number], [number, number], [number, number]]> => {
+        // Load the new SDP image to get its dimensions
+        const loadSdpImage = (): Promise<[[number, number], [number, number], [number, number], [number, number]]> => {
           return new Promise((resolve, reject) => {
             const img = new Image();
             img.crossOrigin = 'anonymous';
             img.onload = () => {
-              const coords = calculateImageBoundsFromPGW(img.naturalWidth, img.naturalHeight);
+              const coords = calculateImageCoordinates(img.naturalWidth, img.naturalHeight);
               resolve(coords);
             };
             img.onerror = () => reject(new Error('Failed to load image'));
-            img.src = '/images/yume-sdp-georef.png';
+            img.src = '/images/yume-sdp-new.png';
           });
         };
 
         // Get actual image dimensions and calculate correct bounds
-        const imageCoordinates = await loadGeoreferencedImage();
+        const imageCoordinates = await loadSdpImage();
         console.log('Final image coordinates for MapLibre:', imageCoordinates);
 
-        // Add georeferenced image source with exact PGW-derived coordinates
+        // Add image source with calculated coordinates
         map.current.addSource('yume-sdp-image', {
           type: 'image',
-          url: '/images/yume-sdp-georef.png',
+          url: '/images/yume-sdp-new.png',
           coordinates: imageCoordinates,
         });
 
-        // Add raster layer for the georeferenced image
-        // Place it above base map but below labels by using 'beforeId'
-        // Find a suitable label layer to insert before
+        // Add raster layer for the image
+        // Place it above base map but below labels
         const layers = map.current.getStyle().layers;
         let labelLayerId: string | undefined;
         for (const layer of layers || []) {
@@ -196,32 +178,8 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
               'raster-fade-duration': 0,
             },
           },
-          labelLayerId // Insert below labels
+          labelLayerId
         );
-
-        // Add polygon outline layer (above raster, for interaction)
-        map.current.addLayer({
-          id: 'polygon-outline',
-          type: 'line',
-          source: 'yume-data',
-          filter: ['==', ['geometry-type'], 'Polygon'],
-          paint: {
-            'line-color': '#22c55e',
-            'line-width': 2,
-          },
-        });
-
-        // Add invisible polygon fill for click/hover detection
-        map.current.addLayer({
-          id: 'polygon-fill',
-          type: 'fill',
-          source: 'yume-data',
-          filter: ['==', ['geometry-type'], 'Polygon'],
-          paint: {
-            'fill-color': 'transparent',
-            'fill-opacity': 0,
-          },
-        });
 
         // Add LineString layer
         map.current.addLayer({
@@ -307,7 +265,7 @@ const MapView = ({ apiKey, onFeatureClick, highlightedFeature, highlightedCoordi
         }
 
         // Add hover interactions for all interactive layers
-        const interactiveLayers = ['polygon-fill', 'polygon-outline', 'linestrings', 'multilinestrings'];
+        const interactiveLayers = ['linestrings', 'multilinestrings'];
         
         interactiveLayers.forEach((layer) => {
           map.current!.on('mouseenter', layer, (e) => {
