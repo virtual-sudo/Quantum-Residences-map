@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { KeyRound, MapPin } from 'lucide-react';
+import MapExport from '@/components/MapExport';
 
 const Index = () => {
   const [apiKey, setApiKey] = useState('TzNncyeb8gVUMH68QKMX');
@@ -22,7 +23,7 @@ const Index = () => {
   return (
     <div className="h-screen w-full flex flex-col bg-background">
       {/* Header */}
-      <header className="h-16 border-b border-nav-foreground/20 bg-nav-background flex items-center px-6 shadow-sm">
+      <header className="h-16 border-b border-nav-foreground/20 bg-nav-background flex items-center justify-between px-6 shadow-sm">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-nav-foreground/10 rounded-lg">
             <MapPin className="w-5 h-5 text-nav-foreground" />
@@ -32,6 +33,7 @@ const Index = () => {
             <p className="text-xs text-nav-foreground/70">general trias, cavite</p>
           </div>
         </div>
+        <MapExport apiKey={apiKey} />
       </header>
 
       {/* Main Content */}
