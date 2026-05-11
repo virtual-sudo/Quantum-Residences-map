@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import MapView from '@/components/MapView';
-import PlaceSidebar, { places } from '@/components/PlaceSidebar';
+import PlaceSidebar, { places, CategoryKey } from '@/components/PlaceSidebar';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -12,7 +12,7 @@ const Index = () => {
   const [tempApiKey, setTempApiKey] = useState('TzNncyeb8gVUMH68QKMX');
   const [highlightedFeature, setHighlightedFeature] = useState<string | null>(null);
   const [highlightedCoordinates, setHighlightedCoordinates] = useState<[number, number] | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<CategoryKey | null>(null);
   const [selectedPlace, setSelectedPlace] = useState<string | null>(null);
 
   const handleApiKeySubmit = (e: React.FormEvent) => {
@@ -22,25 +22,22 @@ const Index = () => {
 
   return (
     <div className="h-screen w-full flex flex-col bg-background">
-      {/* Header */}
-      <header className="h-16 border-b border-nav-foreground/20 bg-nav-background flex items-center justify-between px-6 shadow-sm">
+      <header className="h-16 border-b border-white/20 bg-nav-background flex items-center justify-between px-6 shadow-sm">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-nav-foreground/10 rounded-lg">
+          <div className="p-2 bg-white/15 rounded-lg">
             <MapPin className="w-5 h-5 text-nav-foreground" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-nav-foreground">yume at riverparks</h1>
-            <p className="text-xs text-nav-foreground/70">general trias, cavite</p>
+            <h1 className="text-xl font-bold text-nav-foreground">Quantum Residences</h1>
+            <p className="text-xs text-nav-foreground/85">Intersection of Taft & Buendia, Pasay</p>
           </div>
         </div>
         <MapExport apiKey={apiKey} />
       </header>
 
-      {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Sidebar - Always Visible */}
         <aside className="w-80 flex-shrink-0">
-          <PlaceSidebar 
+          <PlaceSidebar
             onPlaceClick={(placeName, coordinates) => {
               setSelectedPlace(placeName);
               setHighlightedFeature(placeName);
@@ -55,7 +52,6 @@ const Index = () => {
           />
         </aside>
 
-        {/* Map Container */}
         <main className="flex-1 relative">
           {!apiKey ? (
             <div className="absolute inset-0 flex items-center justify-center bg-background/95 backdrop-blur-sm z-10">
@@ -102,9 +98,6 @@ const Index = () => {
 
           <MapView
             apiKey={apiKey}
-            onFeatureClick={(feature) => {
-              console.log('Feature clicked:', feature);
-            }}
             highlightedFeature={highlightedFeature}
             highlightedCoordinates={highlightedCoordinates}
             places={places}
@@ -123,3 +116,4 @@ const Index = () => {
 };
 
 export default Index;
+

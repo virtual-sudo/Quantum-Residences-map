@@ -7,9 +7,9 @@ interface MapExportProps {
 
 const MapExport = ({ apiKey }: MapExportProps) => {
   const handleExport = () => {
-    // Bounding box coordinates
-    const topLeft = { lat: 14.386029455678152, lng: 120.89132239164793 };
-    const bottomRight = { lat: 14.321451194841746, lng: 120.9154003313254 };
+    // Bounding box around Quantum Residences (Taft & Buendia, Pasay)
+    const topLeft = { lat: 14.5680, lng: 120.9900 };
+    const bottomRight = { lat: 14.5430, lng: 121.0180 };
 
     // MapTiler static API bbox format: west, south, east, north
     const west = topLeft.lng;

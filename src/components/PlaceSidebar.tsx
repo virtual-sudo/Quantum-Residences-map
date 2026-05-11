@@ -1,13 +1,23 @@
-import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { Building2, GraduationCap, Church, ShoppingBag, Navigation, Car, Home } from 'lucide-react';
+import {
+  HeartPulse,
+  Bus,
+  Church,
+  ShoppingBag,
+  GraduationCap,
+  Navigation,
+  Car,
+  Home,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
+
+export type CategoryKey = 'healthcare' | 'transport' | 'worship' | 'mall' | 'school';
 
 export interface Place {
   name: string;
-  type: 'hospital' | 'school' | 'church' | 'mall';
+  type: CategoryKey;
   walkDistance: string;
   carDistance: string;
   coordinates: [number, number];
@@ -15,316 +25,232 @@ export interface Place {
 
 interface PlaceSidebarProps {
   onPlaceClick: (placeName: string, coordinates?: [number, number]) => void;
-  selectedCategory: string | null;
-  onCategoryChange: (category: string | null) => void;
+  selectedCategory: CategoryKey | null;
+  onCategoryChange: (category: CategoryKey | null) => void;
   selectedPlace: string | null;
 }
 
-// Exact locations from Google My Maps KML file
-export const places: Place[] = [
-  // Malls
-  {
-    name: 'Vista Mall General Trias',
-    type: 'mall',
-    walkDistance: '5.8 km',
-    carDistance: '3.1 km',
-    coordinates: [120.9124179, 14.3225442],
-  },
-  {
-    name: 'Imart Shopping Center',
-    type: 'mall',
-    walkDistance: '2.8 km',
-    carDistance: '1.5 km',
-    coordinates: [120.8986942, 14.3858642],
-  },
-  {
-    name: 'The District Imus',
-    type: 'mall',
-    walkDistance: '6.5 km',
-    carDistance: '3.5 km',
-    coordinates: [120.9394139, 14.3706188],
-  },
-  {
-    name: 'SM Center Imus',
-    type: 'mall',
-    walkDistance: '7.2 km',
-    carDistance: '3.9 km',
-    coordinates: [120.9246296, 14.4088854],
-  },
-  // Hospitals
-  {
-    name: 'South Imus Specialist Hospital',
-    type: 'hospital',
-    walkDistance: '6.4 km',
-    carDistance: '3.4 km',
-    coordinates: [120.9347566, 14.3765538],
-  },
-  {
-    name: 'Ospital ng Imus',
-    type: 'hospital',
-    walkDistance: '5.2 km',
-    carDistance: '2.8 km',
-    coordinates: [120.9199721, 14.3936854],
-  },
-  {
-    name: 'Emilio Aguinaldo College Medical Center - Cavite',
-    type: 'hospital',
-    walkDistance: '7.1 km',
-    carDistance: '3.8 km',
-    coordinates: [120.9397649, 14.3486372],
-  },
-  {
-    name: 'De la Salle University Medical Center',
-    type: 'hospital',
-    walkDistance: '7.9 km',
-    carDistance: '4.2 km',
-    coordinates: [120.9434238, 14.3271716],
-  },
-  // Churches
-  {
-    name: 'San Francisco De Malabon Parish',
-    type: 'church',
-    walkDistance: '1.9 km',
-    carDistance: '1.0 km',
-    coordinates: [120.8800058, 14.3855046],
-  },
-  {
-    name: 'Immaculate Conception Parish Church',
-    type: 'church',
-    walkDistance: '6.8 km',
-    carDistance: '3.6 km',
-    coordinates: [120.9358534, 14.3269432],
-  },
-  {
-    name: 'The Annunciation of the Lord Parish',
-    type: 'church',
-    walkDistance: '2.8 km',
-    carDistance: '1.5 km',
-    coordinates: [120.8955918, 14.3624276],
-  },
-  {
-    name: 'The Church of Jesus Christ of Latter-day Saints',
-    type: 'church',
-    walkDistance: '1.9 km',
-    carDistance: '1.0 km',
-    coordinates: [120.8819163, 14.3813168],
-  },
-  // Schools
-  {
-    name: 'Samuel Christian College of General Trias, Inc.',
-    type: 'school',
-    walkDistance: '2.0 km',
-    carDistance: '1.1 km',
-    coordinates: [120.8888265, 14.3800883],
-  },
-  {
-    name: 'Cavite State University - General Trias Campus',
-    type: 'school',
-    walkDistance: '1.8 km',
-    carDistance: '1.0 km',
-    coordinates: [120.88049, 14.3850025],
-  },
-  {
-    name: 'The Palmridge School - General Trias',
-    type: 'school',
-    walkDistance: '3.7 km',
-    carDistance: '2.0 km',
-    coordinates: [120.9069569, 14.3428749],
-  },
-  {
-    name: 'Gen. Trias Memorial Elementary School',
-    type: 'school',
-    walkDistance: '1.7 km',
-    carDistance: '0.9 km',
-    coordinates: [120.8772768, 14.3825654],
-  },
-];
+// Origin: Quantum Residences
+export const QUANTUM_COORDS: [number, number] = [120.9980211, 14.5527891];
 
-const categoryConfig = {
-  hospital: {
-    icon: Building2,
-    label: 'Hospitals',
-    color: 'hospital',
-  },
-  school: {
-    icon: GraduationCap,
-    label: 'Schools',
-    color: 'school',
-  },
-  church: {
-    icon: Church,
-    label: 'Churches',
-    color: 'church',
-  },
-  mall: {
-    icon: ShoppingBag,
-    label: 'Malls',
-    color: 'mall',
-  },
+// Haversine in km
+const distanceKm = (a: [number, number], b: [number, number]) => {
+  const R = 6371;
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const dLat = toRad(b[1] - a[1]);
+  const dLng = toRad(b[0] - a[0]);
+  const lat1 = toRad(a[1]);
+  const lat2 = toRad(b[1]);
+  const h =
+    Math.sin(dLat / 2) ** 2 +
+    Math.sin(dLng / 2) ** 2 * Math.cos(lat1) * Math.cos(lat2);
+  return 2 * R * Math.asin(Math.sqrt(h));
 };
 
-const PlaceSidebar = ({ onPlaceClick, selectedCategory, onCategoryChange, selectedPlace }: PlaceSidebarProps) => {
-  const handlePlaceClick = (placeName: string, coordinates?: [number, number]) => {
-    onPlaceClick(placeName, coordinates);
-  };
+const fmtKm = (km: number) => `${km.toFixed(1)} km`;
 
-  // Filter places by selected category
-  const filteredPlaces = selectedCategory
-    ? places.filter((place) => place.type === selectedCategory)
+const buildPlace = (
+  name: string,
+  type: CategoryKey,
+  coordinates: [number, number]
+): Place => {
+  const d = distanceKm(QUANTUM_COORDS, coordinates);
+  return {
+    name,
+    type,
+    coordinates,
+    walkDistance: fmtKm(d * 1.3),
+    carDistance: fmtKm(Math.max(d * 1.2, 0.3)),
+  };
+};
+
+// Places sourced from Quantum_Residences.kml
+export const places: Place[] = [
+  // Healthcare
+  buildPlace('Makati Medical Center', 'healthcare', [121.014828, 14.5591862]),
+  buildPlace('Adventist Medical Center', 'healthcare', [120.9952498, 14.5561155]),
+  buildPlace('Pasay City General Hospital', 'healthcare', [121.0009273, 14.5492968]),
+
+  // Transport Hub
+  buildPlace('LRT Gil Puyat', 'transport', [120.9972465, 14.5535919]),
+  buildPlace('Libertad Station South Entry', 'transport', [120.9986078, 14.5475506]),
+  buildPlace('Jam Liner Buendia Bus Station', 'transport', [120.9967611, 14.5551027]),
+  buildPlace('ALPS Buendia Terminal', 'transport', [120.9965939, 14.555617]),
+  buildPlace('JAC Liner Terminal - Buendia', 'transport', [120.9965911, 14.5542468]),
+
+  // Place of Worship
+  buildPlace('Pasay Central Seventh-day Adventist Church', 'worship', [120.9960637, 14.5543876]),
+  buildPlace('Pasay First United Methodist Church', 'worship', [120.9985833, 14.5504752]),
+  buildPlace('Sta. Clara de Montefalco Parish', 'worship', [121.001057, 14.5489727]),
+
+  // Mall
+  buildPlace('Cash & Carry Mall', 'mall', [121.005787, 14.5586644]),
+  buildPlace('Makati Square', 'mall', [121.0146088, 14.5523286]),
+  buildPlace('WalterMart Makati', 'mall', [121.013095, 14.5513096]),
+
+  // Schools
+  buildPlace('Arellano University - Jose Abad Santos Campus', 'school', [120.9955571, 14.5595325]),
+  buildPlace('Arellano University School of Law', 'school', [120.9951437, 14.5596691]),
+  buildPlace('De La Salle University Manila', 'school', [120.9931652, 14.5647642]),
+  buildPlace('De La Salle - College of Saint Benilde Taft Campus', 'school', [120.9947909, 14.5638473]),
+  buildPlace('Asian Institute of Maritime Studies', 'school', [120.9922325, 14.5461269]),
+];
+
+export const categoryConfig: Record<
+  CategoryKey,
+  { icon: any; label: string; hex: string }
+> = {
+  healthcare: { icon: HeartPulse, label: 'Healthcare', hex: '#B2564A' },
+  transport: { icon: Bus, label: 'Transport', hex: '#742C7B' },
+  worship: { icon: Church, label: 'Worship', hex: '#E7A025' },
+  mall: { icon: ShoppingBag, label: 'Malls', hex: '#C73E2F' },
+  school: { icon: GraduationCap, label: 'Schools', hex: '#8B3F6B' },
+};
+
+const PlaceSidebar = ({
+  onPlaceClick,
+  selectedCategory,
+  onCategoryChange,
+  selectedPlace,
+}: PlaceSidebarProps) => {
+  const filtered = selectedCategory
+    ? places.filter((p) => p.type === selectedCategory)
     : places;
 
-  const groupedPlaces = filteredPlaces.reduce((acc, place) => {
-    if (!acc[place.type]) acc[place.type] = [];
-    acc[place.type].push(place);
+  const grouped = filtered.reduce((acc, p) => {
+    (acc[p.type] ||= []).push(p);
     return acc;
-  }, {} as Record<string, Place[]>);
+  }, {} as Record<CategoryKey, Place[]>);
 
   return (
-    <div className="h-full flex flex-col bg-nav-background border-r border-nav-foreground/20 shadow-lg">
-      <div className="p-6 border-b border-nav-foreground/20 space-y-4">
+    <div className="h-full flex flex-col bg-nav-background border-r border-white/15 shadow-lg">
+      <div className="p-6 border-b border-white/15 space-y-4">
         <div>
-          <h2 className="text-2xl font-bold text-nav-foreground">nearby places</h2>
-          <p className="text-sm text-nav-foreground/70 mt-1">from yume at riverparks</p>
+          <h2 className="text-2xl font-bold text-nav-foreground">Nearby Places</h2>
+          <p className="text-sm text-nav-foreground/80 mt-1">from Quantum Residences</p>
         </div>
-        
+
         <div className="flex flex-wrap gap-2">
           <Badge
-            variant={selectedCategory === null ? "default" : "outline"}
-            className="cursor-pointer transition-all hover:scale-105 bg-nav-foreground/10 hover:bg-nav-foreground/20 border-nav-foreground/30 text-nav-foreground"
+            variant="outline"
+            className={cn(
+              'cursor-pointer transition-all border-white/40 text-nav-foreground',
+              selectedCategory === null
+                ? 'bg-white/25 hover:bg-white/30'
+                : 'bg-white/10 hover:bg-white/20'
+            )}
             onClick={() => onCategoryChange(null)}
           >
             All
           </Badge>
-          {Object.entries(categoryConfig).map(([type, config]) => {
-            const Icon = config.icon;
-            const isActive = selectedCategory === type;
-            const activeStyles = type === 'hospital' 
-              ? "bg-hospital hover:bg-hospital/90 text-hospital-foreground border-hospital shadow-lg shadow-hospital/30"
-              : type === 'school'
-              ? "bg-school hover:bg-school/90 text-school-foreground border-school shadow-lg shadow-school/30"
-              : type === 'church'
-              ? "bg-church hover:bg-church/90 text-church-foreground border-church shadow-lg shadow-church/30"
-              : "bg-mall hover:bg-mall/90 text-mall-foreground border-mall shadow-lg shadow-mall/30";
-            
-            return (
-              <Badge
-                key={type}
-                variant={isActive ? "default" : "outline"}
-                className={cn(
-                  "cursor-pointer gap-1 transition-all hover:scale-105",
-                  isActive 
-                    ? activeStyles
-                    : "bg-nav-foreground/10 hover:bg-nav-foreground/20 border-nav-foreground/30 text-nav-foreground"
-                )}
-                onClick={() => onCategoryChange(type)}
-              >
-                <Icon className="w-3 h-3" />
-                {config.label}
-              </Badge>
-            );
-          })}
+          {(Object.entries(categoryConfig) as [CategoryKey, typeof categoryConfig[CategoryKey]][]).map(
+            ([type, config]) => {
+              const Icon = config.icon;
+              const isActive = selectedCategory === type;
+              return (
+                <Badge
+                  key={type}
+                  variant="outline"
+                  className={cn(
+                    'cursor-pointer gap-1 transition-all border-white/40 text-nav-foreground',
+                    isActive ? 'bg-white/30 ring-1 ring-white' : 'bg-white/10 hover:bg-white/20'
+                  )}
+                  style={isActive ? { backgroundColor: config.hex, borderColor: config.hex } : undefined}
+                  onClick={() => onCategoryChange(type)}
+                >
+                  <Icon className="w-3 h-3" />
+                  {config.label}
+                </Badge>
+              );
+            }
+          )}
         </div>
       </div>
 
       <ScrollArea className="flex-1">
         <div className="p-4 space-y-6">
-          {/* Yume at Riverparks Card */}
+          {/* Quantum Residences (your location) */}
           <div className="space-y-3">
             <div className="flex items-center gap-2 px-2">
-              <div className="p-1.5 rounded-lg bg-primary/20">
-                <Home className="w-4 h-4 text-primary" />
+              <div className="p-1.5 rounded-lg bg-white/20">
+                <Home className="w-4 h-4 text-nav-foreground" />
               </div>
-              <h3 className="font-semibold text-nav-foreground">your location</h3>
+              <h3 className="font-semibold text-nav-foreground">Your Location</h3>
             </div>
-            
+
             <Card
               className={cn(
-                "p-4 cursor-pointer transition-all duration-300 border-2 bg-nav-foreground/5 hover:scale-[1.02]",
-                selectedPlace === 'Yume at Riverparks'
-                  ? "border-primary bg-primary/20 shadow-xl shadow-primary/30 ring-2 ring-primary/50"
-                  : "border-nav-foreground/20 hover:border-nav-foreground/40 hover:bg-nav-foreground/10 hover:shadow-lg"
+                'p-4 cursor-pointer transition-all duration-300 border-2 bg-white/10 hover:bg-white/20',
+                selectedPlace === 'Quantum Residences'
+                  ? 'border-white bg-white/25 ring-2 ring-white/60'
+                  : 'border-white/30'
               )}
-              onClick={() => handlePlaceClick('Yume at Riverparks', [120.876, 14.370])}
+              onClick={() => onPlaceClick('Quantum Residences', QUANTUM_COORDS)}
             >
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <Home className="w-4 h-4 text-primary" />
-                  <h4 className="font-semibold text-nav-foreground">yume at riverparks</h4>
+                  <Home className="w-4 h-4 text-nav-foreground" />
+                  <h4 className="font-semibold text-nav-foreground">Quantum Residences</h4>
                 </div>
-                <p className="text-xs text-nav-foreground/70">general trias, cavite</p>
+                <p className="text-xs text-nav-foreground/80">
+                  Intersection of Taft & Buendia, Pasay
+                </p>
               </div>
             </Card>
           </div>
-          {Object.entries(groupedPlaces).map(([type, placesInCategory]) => {
-            const config = categoryConfig[type as keyof typeof categoryConfig];
-            const Icon = config.icon;
 
+          {(Object.entries(grouped) as [CategoryKey, Place[]][]).map(([type, list]) => {
+            const cfg = categoryConfig[type];
+            const Icon = cfg.icon;
             return (
               <div key={`${type}-${selectedCategory}`} className="space-y-3 animate-fade-in">
                 <div className="flex items-center gap-2 px-2">
-                  <div className={cn(
-                    "p-1.5 rounded-lg",
-                    type === 'hospital' ? "bg-red-500/20" :
-                    type === 'school' ? "bg-blue-500/20" :
-                    type === 'church' ? "bg-purple-500/20" : "bg-orange-500/20"
-                  )}>
-                    <Icon className={cn(
-                      "w-4 h-4",
-                      type === 'hospital' ? "text-red-500" :
-                      type === 'school' ? "text-blue-500" :
-                      type === 'church' ? "text-purple-500" : "text-orange-500"
-                    )} />
+                  <div
+                    className="p-1.5 rounded-lg"
+                    style={{ backgroundColor: `${cfg.hex}33` }}
+                  >
+                    <Icon className="w-4 h-4" style={{ color: '#fff' }} />
                   </div>
-                  <h3 className="font-semibold text-nav-foreground">{config.label}</h3>
-                  <Badge variant="secondary" className="ml-auto bg-nav-foreground/10 text-nav-foreground border-nav-foreground/30">
-                    {placesInCategory.length}
+                  <h3 className="font-semibold text-nav-foreground">{cfg.label}</h3>
+                  <Badge
+                    variant="secondary"
+                    className="ml-auto bg-white/15 text-nav-foreground border-white/30"
+                  >
+                    {list.length}
                   </Badge>
                 </div>
 
                 <div className="space-y-2">
-                  {placesInCategory.map((place) => {
+                  {list.map((place) => {
                     const isSelected = selectedPlace === place.name;
-                    const selectedStyles = type === 'hospital' 
-                      ? "border-red-500 bg-red-500/20 shadow-xl shadow-red-500/30 ring-2 ring-red-500/50"
-                      : type === 'school'
-                      ? "border-blue-500 bg-blue-500/20 shadow-xl shadow-blue-500/30 ring-2 ring-blue-500/50"
-                      : type === 'church'
-                      ? "border-purple-500 bg-purple-500/20 shadow-xl shadow-purple-500/30 ring-2 ring-purple-500/50"
-                      : "border-orange-500 bg-orange-500/20 shadow-xl shadow-orange-500/30 ring-2 ring-orange-500/50";
-                    
-                    const iconColor = type === 'hospital' 
-                      ? "text-red-500"
-                      : type === 'school'
-                      ? "text-blue-500"
-                      : type === 'church'
-                      ? "text-purple-500"
-                      : "text-orange-500";
-                    
                     return (
                       <Card
                         key={place.name}
                         className={cn(
-                          "p-4 cursor-pointer transition-all duration-300 border-2 bg-nav-foreground/5 hover:scale-[1.02]",
-                          isSelected
-                            ? selectedStyles
-                            : "border-nav-foreground/20 hover:border-nav-foreground/40 hover:bg-nav-foreground/10 hover:shadow-lg"
+                          'p-4 cursor-pointer transition-all duration-300 border-2 bg-white/10 hover:bg-white/20',
+                          isSelected ? 'ring-2' : 'border-white/25'
                         )}
-                        onClick={() => handlePlaceClick(place.name, place.coordinates)}
+                        style={
+                          isSelected
+                            ? { borderColor: cfg.hex, boxShadow: `0 8px 24px -8px ${cfg.hex}` }
+                            : undefined
+                        }
+                        onClick={() => onPlaceClick(place.name, place.coordinates)}
                       >
                         <div className="space-y-3">
                           <div className="flex items-center gap-2">
-                            <Icon className={cn("w-4 h-4", iconColor)} />
+                            <Icon className="w-4 h-4" style={{ color: cfg.hex }} />
                             <h4 className="font-medium text-nav-foreground leading-tight">
                               {place.name}
                             </h4>
                           </div>
 
                           <div className="flex gap-4 text-sm">
-                            <div className="flex items-center gap-1.5 text-nav-foreground/70">
+                            <div className="flex items-center gap-1.5 text-nav-foreground/85">
                               <Navigation className="w-3.5 h-3.5" />
                               <span>{place.walkDistance}</span>
                             </div>
-                            <div className="flex items-center gap-1.5 text-nav-foreground/70">
+                            <div className="flex items-center gap-1.5 text-nav-foreground/85">
                               <Car className="w-3.5 h-3.5" />
                               <span>{place.carDistance}</span>
                             </div>

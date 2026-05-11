@@ -47,17 +47,21 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        hospital: {
-          DEFAULT: "hsl(var(--hospital))",
-          foreground: "hsl(var(--hospital-foreground))",
+        healthcare: {
+          DEFAULT: "hsl(var(--healthcare))",
+          foreground: "hsl(var(--healthcare-foreground))",
+        },
+        transport: {
+          DEFAULT: "hsl(var(--transport))",
+          foreground: "hsl(var(--transport-foreground))",
+        },
+        worship: {
+          DEFAULT: "hsl(var(--worship))",
+          foreground: "hsl(var(--worship-foreground))",
         },
         school: {
           DEFAULT: "hsl(var(--school))",
           foreground: "hsl(var(--school-foreground))",
-        },
-        church: {
-          DEFAULT: "hsl(var(--church))",
-          foreground: "hsl(var(--church-foreground))",
         },
         mall: {
           DEFAULT: "hsl(var(--mall))",
