@@ -2,127 +2,93 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* All colors MUST be HSL. */
 
 @layer base {
   :root {
-    --background: 210 20% 98%;
-    --foreground: 215 25% 15%;
+    --background: 0 0% 98%;
+    --foreground: 0 0% 10%;
 
     --card: 0 0% 100%;
-    --card-foreground: 215 25% 15%;
+    --card-foreground: 0 0% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 215 25% 15%;
+    --popover-foreground: 0 0% 10%;
 
-    --primary: 215 90% 48%;
+    /* Brand: #E7A025 -> hsl(36, 81%, 53%) */
+    --primary: 36 81% 53%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 15% 92%;
-    --secondary-foreground: 215 25% 15%;
+    --secondary: 36 30% 92%;
+    --secondary-foreground: 0 0% 10%;
 
-    --muted: 210 15% 95%;
-    --muted-foreground: 215 15% 45%;
+    --muted: 36 15% 95%;
+    --muted-foreground: 0 0% 40%;
 
-    --accent: 215 90% 55%;
+    --accent: 36 81% 53%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 215 15% 88%;
-    --input: 215 15% 88%;
-    --ring: 215 90% 48%;
+    --border: 0 0% 88%;
+    --input: 0 0% 88%;
+    --ring: 36 81% 53%;
 
     --radius: 0.75rem;
 
-    /* Brand colors */
-    --nav-background: 44 25% 79%;
-    --nav-foreground: 60 24% 17%;
+    /* Brand nav (#E7A025 with white text) */
+    --nav-background: 36 81% 53%;
+    --nav-foreground: 0 0% 100%;
 
-    /* Category colors */
-    --hospital: 350 85% 55%;
-    --hospital-foreground: 0 0% 100%;
-    --school: 210 90% 50%;
-    --school-foreground: 0 0% 100%;
-    --church: 270 70% 55%;
-    --church-foreground: 0 0% 100%;
-    --mall: 35 92% 55%;
+    /* Category colors mapped close to brand palette
+       healthcare #B2564A, transport #742C7B, worship #E7A025, mall #C73E2F, school #8B3F6B */
+    --healthcare: 8 41% 49%;
+    --healthcare-foreground: 0 0% 100%;
+    --transport: 290 47% 33%;
+    --transport-foreground: 0 0% 100%;
+    --worship: 36 81% 53%;
+    --worship-foreground: 0 0% 100%;
+    --mall: 6 62% 48%;
     --mall-foreground: 0 0% 100%;
+    --school: 314 38% 40%;
+    --school-foreground: 0 0% 100%;
 
-    /* Map colors */
-    --line-primary: 280 70% 55%;
-    --line-secondary: 160 70% 45%;
-    --polygon-main: 135 60% 65%;
+    /* Brand gradient stops for popups */
+    --grad-1: 36 81% 53%;   /* #E7A025 */
+    --grad-2: 8 41% 49%;    /* #B2564A */
+    --grad-3: 290 47% 33%;  /* #742C7B */
 
     --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-foreground: 0 0% 26%;
+    --sidebar-primary: 36 81% 53%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 36 30% 95%;
+    --sidebar-accent-foreground: 0 0% 10%;
+    --sidebar-border: 0 0% 91%;
+    --sidebar-ring: 36 81% 53%;
   }
 
   .dark {
-    --background: 215 30% 8%;
-    --foreground: 210 20% 98%;
-
-    --card: 215 25% 12%;
-    --card-foreground: 210 20% 98%;
-
-    --popover: 215 25% 12%;
-    --popover-foreground: 210 20% 98%;
-
-    --primary: 215 90% 55%;
+    --background: 0 0% 8%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 12%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 12%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 36 81% 55%;
     --primary-foreground: 0 0% 100%;
-
-    --secondary: 215 20% 18%;
-    --secondary-foreground: 210 20% 98%;
-
-    --muted: 215 20% 18%;
-    --muted-foreground: 215 15% 65%;
-
-    --accent: 215 90% 60%;
+    --secondary: 0 0% 18%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 18%;
+    --muted-foreground: 0 0% 65%;
+    --accent: 36 81% 55%;
     --accent-foreground: 0 0% 100%;
-
     --destructive: 0 75% 45%;
     --destructive-foreground: 0 0% 100%;
-
-    --border: 215 20% 20%;
-    --input: 215 20% 20%;
-    --ring: 215 90% 55%;
-
-    --hospital: 350 80% 50%;
-    --hospital-foreground: 0 0% 100%;
-    --school: 210 85% 55%;
-    --school-foreground: 0 0% 100%;
-    --church: 270 65% 60%;
-    --church-foreground: 0 0% 100%;
-    --mall: 35 88% 50%;
-    --mall-foreground: 0 0% 100%;
-
-    --line-primary: 280 65% 60%;
-    --line-secondary: 160 65% 50%;
-    --polygon-main: 135 55% 60%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 36 81% 55%;
   }
 }
 
@@ -133,12 +99,67 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Atkinson Hyperlegible', sans-serif;
+    font-family: 'Inter', sans-serif;
   }
-  
+
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Quicksand', sans-serif;
-    font-weight: 500;
-    text-transform: lowercase;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.01em;
   }
 }
+
+/* MapLibre popup with brand gradient body */
+.maplibregl-popup-content {
+  padding: 0 !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  box-shadow: 0 10px 30px -8px rgba(0, 0, 0, 0.35) !important;
+  font-family: 'Inter', sans-serif !important;
+  border: none !important;
+}
+
+.quantum-popup .popup-header {
+  background: #E7A025;
+  color: #ffffff;
+  padding: 10px 14px;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+}
+
+.quantum-popup .popup-body {
+  background: linear-gradient(135deg, #E7A025 0%, #B2564A 55%, #742C7B 100%);
+  color: #ffffff;
+  padding: 12px 14px;
+  font-size: 13px;
+}
+
+.quantum-popup .popup-body .row {
+  display: flex;
+  gap: 18px;
+  margin-top: 4px;
+}
+
+.quantum-popup .popup-body .label {
+  font-size: 11px;
+  opacity: 0.85;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.quantum-popup .popup-body .value {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.maplibregl-popup-tip {
+  border-top-color: #742C7B !important;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in { animation: fade-in 220ms ease-out; }
