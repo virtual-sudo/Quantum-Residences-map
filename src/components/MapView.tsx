@@ -108,18 +108,18 @@ const MapView = ({
 
       // Home marker for Quantum Residences (logo in themed gradient)
       const homeEl = document.createElement('div');
-      homeEl.style.width = '76px';
-      homeEl.style.height = '76px';
+      homeEl.style.width = '120px';
+      homeEl.style.height = '120px';
       homeEl.style.borderRadius = '50%';
       homeEl.style.background =
         'linear-gradient(135deg, #E7A025 0%, #B2564A 55%, #742C7B 100%)';
-      homeEl.style.border = '4px solid #ffffff';
-      homeEl.style.boxShadow = '0 8px 22px rgba(0,0,0,0.4)';
+      homeEl.style.border = '5px solid #ffffff';
+      homeEl.style.boxShadow = '0 10px 28px rgba(0,0,0,0.45)';
       homeEl.style.cursor = 'pointer';
       homeEl.style.display = 'flex';
       homeEl.style.alignItems = 'center';
       homeEl.style.justifyContent = 'center';
-      homeEl.style.padding = '8px';
+      homeEl.style.padding = '14px';
       const logoImg = document.createElement('img');
       logoImg.src = quantumLogo;
       logoImg.alt = 'Quantum Residences';
@@ -130,14 +130,28 @@ const MapView = ({
       homeEl.appendChild(logoImg);
       homeEl.addEventListener('click', (e) => {
         e.stopPropagation();
-        onMarkerClick?.('Quantum Residences', QUANTUM_COORDS);
+        // Pan only, no popup
+        map.current?.flyTo({
+          center: QUANTUM_COORDS,
+          zoom: 16.5,
+          pitch: 45,
+          duration: 1600,
+          essential: true,
+        });
       });
       homeMarker.current = new maplibregl.Marker({ element: homeEl, anchor: 'center' })
         .setLngLat(QUANTUM_COORDS)
         .addTo(map.current);
 
-      // Ensure we are centered on Quantum Residences on load
-      map.current.jumpTo({ center: QUANTUM_COORDS, zoom: 16, pitch: 45 });
+      // Smoothly pan to Quantum Residences on initial load
+      map.current.flyTo({
+        center: QUANTUM_COORDS,
+        zoom: 16.5,
+        pitch: 45,
+        duration: 2200,
+        curve: 1.4,
+        essential: true,
+      });
 
       setIsLoaded(true);
     });
@@ -210,16 +224,21 @@ const MapView = ({
     map.current.flyTo({
       center: highlightedCoordinates,
       zoom: isHome ? 16.5 : 16,
-      duration: 1400,
+      duration: 1600,
       pitch: 45,
+      curve: 1.4,
+      essential: true,
     });
+
+    // Quantum Residences: pan only, no popup
+    if (isHome) return;
 
     const place = places.find((p) => p.name === highlightedFeature);
     const html = buildPopupHTML(
       highlightedFeature,
       place?.walkDistance,
       place?.carDistance,
-      isHome
+      false
     );
 
     popup.current = new maplibregl.Popup({
