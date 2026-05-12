@@ -3,8 +3,9 @@ import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { cn } from '@/lib/utils';
 import { Place, CategoryKey, categoryConfig, QUANTUM_COORDS } from './PlaceSidebar';
-import { HeartPulse, Bus, Church, ShoppingBag, GraduationCap, Home } from 'lucide-react';
+import { HeartPulse, Bus, Church, ShoppingBag, GraduationCap } from 'lucide-react';
 import { createRoot } from 'react-dom/client';
+import quantumLogo from '@/assets/quantum-logo.png';
 
 interface MapViewProps {
   apiKey: string;
@@ -105,28 +106,38 @@ const MapView = ({
         [ne.lng + pad, ne.lat + pad],
       ]);
 
-      // Home marker for Quantum Residences
+      // Home marker for Quantum Residences (logo in themed gradient)
       const homeEl = document.createElement('div');
-      homeEl.style.width = '44px';
-      homeEl.style.height = '44px';
+      homeEl.style.width = '76px';
+      homeEl.style.height = '76px';
       homeEl.style.borderRadius = '50%';
-      homeEl.style.background = 'linear-gradient(135deg, #E7A025 0%, #B2564A 55%, #742C7B 100%)';
-      homeEl.style.border = '3px solid #ffffff';
-      homeEl.style.boxShadow = '0 4px 14px rgba(0,0,0,0.35)';
+      homeEl.style.background =
+        'linear-gradient(135deg, #E7A025 0%, #B2564A 55%, #742C7B 100%)';
+      homeEl.style.border = '4px solid #ffffff';
+      homeEl.style.boxShadow = '0 8px 22px rgba(0,0,0,0.4)';
       homeEl.style.cursor = 'pointer';
       homeEl.style.display = 'flex';
       homeEl.style.alignItems = 'center';
       homeEl.style.justifyContent = 'center';
-      const homeIconHost = document.createElement('div');
-      createRoot(homeIconHost).render(<Home size={22} color="#ffffff" strokeWidth={2.5} />);
-      homeEl.appendChild(homeIconHost);
+      homeEl.style.padding = '8px';
+      const logoImg = document.createElement('img');
+      logoImg.src = quantumLogo;
+      logoImg.alt = 'Quantum Residences';
+      logoImg.style.width = '100%';
+      logoImg.style.height = '100%';
+      logoImg.style.objectFit = 'contain';
+      logoImg.style.pointerEvents = 'none';
+      homeEl.appendChild(logoImg);
       homeEl.addEventListener('click', (e) => {
         e.stopPropagation();
         onMarkerClick?.('Quantum Residences', QUANTUM_COORDS);
       });
-      homeMarker.current = new maplibregl.Marker({ element: homeEl })
+      homeMarker.current = new maplibregl.Marker({ element: homeEl, anchor: 'center' })
         .setLngLat(QUANTUM_COORDS)
         .addTo(map.current);
+
+      // Ensure we are centered on Quantum Residences on load
+      map.current.jumpTo({ center: QUANTUM_COORDS, zoom: 16, pitch: 45 });
 
       setIsLoaded(true);
     });

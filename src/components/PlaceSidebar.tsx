@@ -153,9 +153,10 @@ const PlaceSidebar = ({
                   variant="outline"
                   className={cn(
                     'cursor-pointer gap-1 transition-all border-white/40 text-nav-foreground',
-                    isActive ? 'bg-white/30 ring-1 ring-white' : 'bg-white/10 hover:bg-white/20'
+                    isActive
+                      ? 'bg-white/30 ring-2 ring-white border-white'
+                      : 'bg-white/10 hover:bg-white/20'
                   )}
-                  style={isActive ? { backgroundColor: config.hex, borderColor: config.hex } : undefined}
                   onClick={() => onCategoryChange(type)}
                 >
                   <Icon className="w-3 h-3" />
@@ -228,13 +229,10 @@ const PlaceSidebar = ({
                         key={place.name}
                         className={cn(
                           'p-4 cursor-pointer transition-all duration-300 border-2 bg-white/10 hover:bg-white/20',
-                          isSelected ? 'ring-2' : 'border-white/25'
-                        )}
-                        style={
                           isSelected
-                            ? { borderColor: cfg.hex, boxShadow: `0 8px 24px -8px ${cfg.hex}` }
-                            : undefined
-                        }
+                            ? 'border-white bg-white/25 ring-2 ring-white/70 shadow-[0_8px_24px_-8px_rgba(231,160,37,0.7)]'
+                            : 'border-white/25'
+                        )}
                         onClick={() => onPlaceClick(place.name, place.coordinates)}
                       >
                         <div className="space-y-3">

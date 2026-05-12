@@ -5,7 +5,6 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { KeyRound, MapPin } from 'lucide-react';
-import MapExport from '@/components/MapExport';
 
 const Index = () => {
   const [apiKey, setApiKey] = useState('TzNncyeb8gVUMH68QKMX');
@@ -32,7 +31,6 @@ const Index = () => {
             <p className="text-xs text-nav-foreground/85">Intersection of Taft & Buendia, Pasay</p>
           </div>
         </div>
-        <MapExport apiKey={apiKey} />
       </header>
 
       <div className="flex-1 flex overflow-hidden">
