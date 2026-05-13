@@ -187,6 +187,9 @@ const MapView = ({
       const cfg = categoryConfig[place.type];
       const Icon = categoryIcons[place.type];
       const el = document.createElement('div');
+      el.className = 'quantum-marker-pulse';
+      el.style.setProperty('--pulse-color', `${cfg.hex}99`);
+      el.style.setProperty('--pulse-color-fade', `${cfg.hex}00`);
       el.style.width = '34px';
       el.style.height = '34px';
       el.style.borderRadius = '50%';
