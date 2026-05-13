@@ -192,8 +192,8 @@
 
 @keyframes quantum-marker-pulse {
   0%   { box-shadow: 0 2px 8px rgba(0,0,0,0.3), 0 0 0 0 var(--pulse-color, rgba(231,160,37,0.55)); }
-  70%  { box-shadow: 0 2px 8px rgba(0,0,0,0.3), 0 0 0 14px rgba(231,160,37,0); }
-  100% { box-shadow: 0 2px 8px rgba(0,0,0,0.3), 0 0 0 0 rgba(231,160,37,0); }
+  70%  { box-shadow: 0 2px 8px rgba(0,0,0,0.3), 0 0 0 14px var(--pulse-color-fade, rgba(231,160,37,0)); }
+  100% { box-shadow: 0 2px 8px rgba(0,0,0,0.3), 0 0 0 0 var(--pulse-color-fade, rgba(231,160,37,0)); }
 }
 .quantum-marker-pulse {
   animation: quantum-marker-pulse 1.8s ease-out infinite;
