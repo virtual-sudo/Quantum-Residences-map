@@ -210,6 +210,8 @@ const MapView = ({
       const marker = new maplibregl.Marker({ element: el })
         .setLngLat(place.coordinates)
         .addTo(map.current!);
+      const wrapper = marker.getElement().parentElement;
+      if (wrapper) wrapper.style.zIndex = '1';
 
       markers.current.push(marker);
     });
