@@ -120,6 +120,8 @@ const MapView = ({
       homeEl.style.alignItems = 'center';
       homeEl.style.justifyContent = 'center';
       homeEl.style.padding = '14px';
+      homeEl.style.zIndex = '1000';
+      homeEl.style.position = 'relative';
       const logoImg = document.createElement('img');
       logoImg.src = quantumLogo;
       logoImg.alt = 'Quantum Residences';
@@ -142,6 +144,11 @@ const MapView = ({
       homeMarker.current = new maplibregl.Marker({ element: homeEl, anchor: 'center' })
         .setLngLat(QUANTUM_COORDS)
         .addTo(map.current);
+      // Ensure home marker is always rendered on top of all category markers
+      const homeMarkerWrapper = homeMarker.current.getElement().parentElement;
+      if (homeMarkerWrapper) {
+        homeMarkerWrapper.style.zIndex = '1000';
+      }
 
       // Smoothly pan to Quantum Residences on initial load
       map.current.flyTo({
@@ -203,6 +210,8 @@ const MapView = ({
       const marker = new maplibregl.Marker({ element: el })
         .setLngLat(place.coordinates)
         .addTo(map.current!);
+      const wrapper = marker.getElement().parentElement;
+      if (wrapper) wrapper.style.zIndex = '1';
 
       markers.current.push(marker);
     });
