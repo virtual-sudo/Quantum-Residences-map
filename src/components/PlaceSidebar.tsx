@@ -159,7 +159,7 @@ const PlaceSidebar = ({
                   )}
                   onClick={() => onCategoryChange(type)}
                 >
-                  <Icon className="w-3 h-3" />
+                     <Icon className="w-3 h-3 flex-shrink-0" />
                   {config.label}
                 </Badge>
               );
@@ -173,8 +173,8 @@ const PlaceSidebar = ({
           {/* Quantum Residences (your location) */}
           <div className="space-y-3">
             <div className="flex items-center gap-2 px-2">
-              <div className="p-1.5 rounded-lg bg-white/20">
-                <Home className="w-4 h-4 text-nav-foreground" />
+             <div className="p-1.5 rounded-lg bg-white/20 flex-shrink-0">
+                <Home className="w-4 h-4 text-nav-foreground flex-shrink-0" />
               </div>
               <h3 className="font-semibold text-nav-foreground">Your Location</h3>
             </div>
@@ -207,10 +207,10 @@ const PlaceSidebar = ({
               <div key={`${type}-${selectedCategory}`} className="space-y-3 animate-fade-in">
                 <div className="flex items-center gap-2 px-2">
                   <div
-                    className="p-1.5 rounded-lg"
+                    className="p-1.5 rounded-lg flex items-center justify-center flex-shrink-0 w-7 h-7"
                     style={{ backgroundColor: `${cfg.hex}33` }}
                   >
-                    <Icon className="w-4 h-4" style={{ color: '#fff' }} />
+                    <Icon className="w-4 h-4 flex-shrink-0" style={{ color: '#fff' }} />
                   </div>
                   <h3 className="font-semibold text-nav-foreground">{cfg.label}</h3>
                   <Badge
@@ -236,8 +236,8 @@ const PlaceSidebar = ({
                         onClick={() => onPlaceClick(place.name, place.coordinates)}
                       >
                         <div className="space-y-3">
-                          <div className="flex items-center gap-2">
-                            <Icon className="w-4 h-4" style={{ color: cfg.hex }} />
+                           <div className="flex items-start gap-2">
+                            <Icon className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: cfg.hex }} />
                             <h4 className="font-medium text-nav-foreground leading-tight">
                               {place.name}
                             </h4>
