@@ -38,7 +38,11 @@
     --radius: 0.75rem;
 
     /* Brand nav (#E7A025 with white text) */
-    --nav-background: 36 81% 53%;
+    /* --nav-background: 36 81% 53%;
+    --nav-foreground: 0 0% 100%; */
+
+     /* Updated Brand nav (#E7A025 with white text) */
+    --nav-background: 36 90% 46%;
     --nav-foreground: 0 0% 100%;
 
     /* Category colors mapped close to brand palette
@@ -47,7 +51,7 @@
     --healthcare-foreground: 0 0% 100%;
     --transport: 290 47% 33%;
     --transport-foreground: 0 0% 100%;
-    --worship: 36 81% 53%;
+    --worship: 36 100% 53%;
     --worship-foreground: 0 0% 100%;
     --mall: 6 62% 48%;
     --mall-foreground: 0 0% 100%;
