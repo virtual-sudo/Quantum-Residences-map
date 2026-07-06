@@ -71,7 +71,7 @@ export const places: Place[] = [
   buildPlace('Makati Medical Center', 'healthcare', [121.014828, 14.5591862]),
   buildPlace('Adventist Medical Center', 'healthcare', [120.9952498, 14.5561155]),
   buildPlace('Pasay City General Hospital', 'healthcare', [121.0009273, 14.5492968]),
-  buildPlace('Manila Doctors Hospital', 'healthcare', [14.582225279623124, 120.98330901084243]),
+  buildPlace('Manila Doctors Hospital', 'healthcare', [120.98330901084243, 14.582225279623124]),
 
   // Transport Hub
   buildPlace('LRT Gil Puyat', 'transport', [120.9972465, 14.5535919]),
@@ -89,25 +89,25 @@ export const places: Place[] = [
   buildPlace('Cash & Carry Mall', 'mall', [121.005787, 14.5586644]),
   buildPlace('Makati Square', 'mall', [121.0146088, 14.5523286]),
   buildPlace('WalterMart Makati', 'mall', [121.013095, 14.5513096]),
-  buildPlace('MOA Complex', 'mall', [14.540514219531026, 120.98667151359776]),
-  buildPlace('Cartimar Shopping Center', 'mall', [14.551438724770588, 120.99602705651795]),
+  buildPlace('MOA Complex', 'mall', [120.98667151359776, 14.540514219531026]),
+  buildPlace('Cartimar Shopping Center', 'mall', [120.99602705651795, 14.551438724770588]),
 
   // Schools
   buildPlace('Arellano University - Jose Abad Santos Campus', 'school', [120.9955571, 14.5595325]),
-  buildPlace('Arellano University - Jose Abad Santos High School', 'school', [14.55360586220721, 120.99786053889241]),
+  buildPlace('Arellano University - Jose Abad Santos High School', 'school', [120.99786053889241, 14.55360586220721]),
   buildPlace('Arellano University School of Law', 'school', [120.9951437, 14.5596691]),
   buildPlace('De La Salle University Manila', 'school', [120.9931652, 14.5647642]),
   buildPlace('De La Salle - College of Saint Benilde Taft Campus', 'school', [120.9947909, 14.5638473]),
   buildPlace('Asian Institute of Maritime Studies', 'school', [120.9922325, 14.5461269]),
 
  // Hotel & Resorts
-  buildPlace('Solaire City of Dreams Manila', 'hotel', [14.522953959404889, 120.98062020743764]),
+  buildPlace('Solaire City of Dreams Manila', 'hotel', [120.98062020743764, 14.522953959404889]),
 
   // Residential Condominiums
-  buildPlace('Met Park', 'residential', [14.541033815168785, 120.9905081118793]),
+ buildPlace('Met Park', 'residential', [120.9905081118793, 14.541033815168785]),
 
   // Historical Sites
-  buildPlace('Rizal Park', 'historical sites', [14.582862633243378, 120.97858140820217]),
+  buildPlace('Rizal Park', 'historical sites', [120.97858140820217, 14.582862633243378]),
 ];
 
 export const categoryConfig: Record<
