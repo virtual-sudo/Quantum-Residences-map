@@ -120,7 +120,6 @@ export const categoryConfig: Record<
   CategoryKey,
   { icon: any; label: string; hex: string }
 > = {
-  // Ordered by relevance to the project site
   healthcare: { icon: Hospital, label: 'Healthcare', hex: '#D64545' },
   transport: { icon: Bus, label: 'Transport', hex: '#3B6FD4' },
   school: { icon: GraduationCap, label: 'Schools', hex: '#1F9AA8' },
@@ -130,6 +129,19 @@ export const categoryConfig: Record<
   residential: { icon: Building2, label: 'Residential', hex: '#E0782F' },
   "historical sites": { icon: Landmark, label: 'Historical Sites', hex: '#9A6B3C' },
 };
+
+// Order of categories in the "All" view, by relevance to Quantum Residences'
+// target residents (young professionals and students commuting to nearby CBDs)
+const ALL_VIEW_ORDER: CategoryKey[] = [
+  'transport',        // daily commute to work, school and CBDs
+  'school',           // key for student residents
+  'mall',             // groceries, dining, everyday services
+  'healthcare',       // safety and essential services
+  'hotel',            // visiting family, friends and business guests
+  'worship',          // lifestyle / community amenity
+  'residential',      // neighborhood context
+  'historical sites', // tourism and area context
+];
 
 // Solid category-color circle with white icon — same look as the map markers
 const CategoryIcon = ({ type, size = 'md' }: { type: CategoryKey; size?: 'sm' | 'md' }) => {
@@ -267,7 +279,7 @@ const PlaceSidebar = ({
                 onValueChange={setExpandedCategory}
                 className="space-y-2"
               >
-                {(Object.keys(categoryConfig) as CategoryKey[])
+                {ALL_VIEW_ORDER
                   .filter((type) => grouped[type]?.length)
                   .map((type) => {
                     const cfg = categoryConfig[type];
