@@ -2,7 +2,6 @@ import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import {
-  HeartPulse,
   Bus,
   Church,
   ShoppingBag,
@@ -11,7 +10,14 @@ import {
   Car,
   Home,
   Building,
+  BedDouble,
+  Landmark,
+  ChevronRight,
+  Hospital,
+  Building2,
 } from 'lucide-react';
+import * as AccordionPrimitive from '@radix-ui/react-accordion';
+import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 
 export type CategoryKey = 'healthcare' | 'transport' | 'worship' | 'mall' | 'school' | 'hotel' | 'residential' | 'historical sites';
@@ -114,14 +120,32 @@ export const categoryConfig: Record<
   CategoryKey,
   { icon: any; label: string; hex: string }
 > = {
-  healthcare: { icon: HeartPulse, label: 'Healthcare', hex: '#B2564A' },
-  transport: { icon: Bus, label: 'Transport', hex: '#742C7B' },
-  worship: { icon: Church, label: 'Worship', hex: '#714800' }, /* Updated color */
-  mall: { icon: ShoppingBag, label: 'Malls', hex: '#C73E2F' },
-  school: { icon: GraduationCap, label: 'Schools', hex: '#8B3F6B' },
-  hotel: { icon: Building, label: 'Hotels', hex: '#5D4037' },
-  residential: { icon: Home, label: 'Residential', hex: '#CE5F49' },
-  "historical sites": { icon: Building, label: 'Historical Sites', hex: '#A74E53' },
+  // Ordered by relevance to the project site
+  healthcare: { icon: Hospital, label: 'Healthcare', hex: '#D64545' },
+  transport: { icon: Bus, label: 'Transport', hex: '#3B6FD4' },
+  school: { icon: GraduationCap, label: 'Schools', hex: '#1F9AA8' },
+  mall: { icon: ShoppingBag, label: 'Malls', hex: '#D14D8B' },
+  hotel: { icon: BedDouble, label: 'Hotels', hex: '#C9A227' },
+  worship: { icon: Church, label: 'Worship', hex: '#8A5CC7' },
+  residential: { icon: Building2, label: 'Residential', hex: '#E0782F' },
+  "historical sites": { icon: Landmark, label: 'Historical Sites', hex: '#9A6B3C' },
+};
+
+// Solid category-color circle with white icon — same look as the map markers
+const CategoryIcon = ({ type, size = 'md' }: { type: CategoryKey; size?: 'sm' | 'md' }) => {
+  const cfg = categoryConfig[type];
+  const Icon = cfg.icon;
+  return (
+    <span
+      className={cn(
+        'rounded-full flex items-center justify-center flex-shrink-0 ring-2 ring-white shadow-sm',
+        size === 'sm' ? 'w-6 h-6' : 'w-8 h-8'
+      )}
+      style={{ backgroundColor: cfg.hex }}
+    >
+      <Icon className={cn('text-white', size === 'sm' ? 'w-3.5 h-3.5' : 'w-4 h-4')} strokeWidth={2.25} />
+    </span>
+  );
 };
 
 const PlaceSidebar = ({
@@ -138,6 +162,15 @@ const PlaceSidebar = ({
     (acc[p.type] ||= []).push(p);
     return acc;
   }, {} as Record<CategoryKey, Place[]>);
+
+  // "All" view: one expanded category at a time
+  const [expandedCategory, setExpandedCategory] = useState<string>('');
+
+  // Reveal the category of a place picked from the map
+  useEffect(() => {
+    const place = places.find((p) => p.name === selectedPlace);
+    if (place && selectedCategory === null) setExpandedCategory(place.type);
+  }, [selectedPlace, selectedCategory]);
 
   return (
     <div className="h-full flex flex-col bg-nav-background border-r border-white/15 shadow-lg">
@@ -171,9 +204,10 @@ const PlaceSidebar = ({
                   className={cn(
                     'cursor-pointer gap-1 transition-all border-white/40 text-nav-foreground',
                     isActive
-                      ? 'bg-white/30 ring-2 ring-white border-white'
+                      ? 'ring-2 ring-white border-white shadow-md'
                       : 'bg-white/10 hover:bg-white/20'
                   )}
+                  style={isActive ? { backgroundColor: config.hex } : undefined}
                   onClick={() => onCategoryChange(type)}
                 >
                      <Icon className="w-3 h-3 flex-shrink-0" />
@@ -217,18 +251,88 @@ const PlaceSidebar = ({
             </Card>
           </div>
 
-          {(Object.entries(grouped) as [CategoryKey, Place[]][]).map(([type, list]) => {
+          {selectedCategory === null && (
+            <div className="space-y-3 animate-fade-in">
+              <div className="flex items-center gap-2 px-2">
+                <div className="p-1.5 rounded-lg bg-white/20 flex-shrink-0">
+                  <Navigation className="w-4 h-4 text-nav-foreground flex-shrink-0" />
+                </div>
+                <h3 className="font-semibold text-nav-foreground">Nearby Places</h3>
+              </div>
+
+              <AccordionPrimitive.Root
+                type="single"
+                collapsible
+                value={expandedCategory}
+                onValueChange={setExpandedCategory}
+                className="space-y-2"
+              >
+                {(Object.keys(categoryConfig) as CategoryKey[])
+                  .filter((type) => grouped[type]?.length)
+                  .map((type) => {
+                    const cfg = categoryConfig[type];
+                    const list = grouped[type];
+                    return (
+                      <AccordionPrimitive.Item
+                        key={type}
+                        value={type}
+                        className="group rounded-xl border-2 border-white/25 bg-white/10 transition-colors duration-300 data-[state=open]:border-white data-[state=open]:bg-white/20"
+                      >
+                        <AccordionPrimitive.Header className="flex">
+                          <AccordionPrimitive.Trigger className="flex flex-1 items-center gap-3 px-3 py-2.5 min-h-[48px] rounded-xl text-left hover:bg-white/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
+                            <CategoryIcon type={type} />
+                            <span className="flex-1 font-semibold text-nav-foreground">{cfg.label}</span>
+                            <Badge
+                              variant="secondary"
+                              className="bg-white/15 text-nav-foreground border-white/30"
+                            >
+                              {list.length}
+                            </Badge>
+                            <ChevronRight className="w-4 h-4 text-nav-foreground flex-shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-90" />
+                          </AccordionPrimitive.Trigger>
+                        </AccordionPrimitive.Header>
+
+                        <AccordionPrimitive.Content className="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
+                          <div className="px-2 pb-2 space-y-1">
+                            {list.map((place) => {
+                              const isSelected = selectedPlace === place.name;
+                              return (
+                                <button
+                                  key={place.name}
+                                  type="button"
+                                  className={cn(
+                                    'w-full flex items-center gap-2.5 rounded-lg px-2.5 py-2 min-h-[44px] text-left transition-colors duration-200',
+                                    isSelected ? 'ring-2 ring-white shadow-md' : 'hover:bg-white/15'
+                                  )}
+                                  // Only the clicked landmark gets the full category color
+                                  style={isSelected ? { backgroundColor: cfg.hex } : undefined}
+                                  onClick={() => onPlaceClick(place.name, place.coordinates)}
+                                >
+                                  <span className="flex-1 text-sm font-medium text-nav-foreground leading-tight">
+                                    {place.name}
+                                  </span>
+                                  <span className="flex items-center gap-1 text-xs text-nav-foreground/85 flex-shrink-0">
+                                    <Navigation className="w-3 h-3" />
+                                    {place.walkDistance}
+                                  </span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </AccordionPrimitive.Content>
+                      </AccordionPrimitive.Item>
+                    );
+                  })}
+              </AccordionPrimitive.Root>
+            </div>
+          )}
+
+          {selectedCategory !== null && (Object.entries(grouped) as [CategoryKey, Place[]][]).map(([type, list]) => {
             const cfg = categoryConfig[type];
-            const Icon = cfg.icon;
             return (
               <div key={`${type}-${selectedCategory}`} className="space-y-3 animate-fade-in">
                 <div className="flex items-center gap-2 px-2">
-                  <div
-                    className="p-1.5 rounded-lg flex items-center justify-center flex-shrink-0 w-7 h-7"
-                    style={{ backgroundColor: `${cfg.hex}33` }}
-                  >
-                    <Icon className="w-4 h-4 flex-shrink-0" style={{ color: '#fff' }} />
-                  </div>
+                  <CategoryIcon type={type} />
                   <h3 className="font-semibold text-nav-foreground">{cfg.label}</h3>
                   <Badge
                     variant="secondary"
@@ -247,14 +351,15 @@ const PlaceSidebar = ({
                         className={cn(
                           'p-4 cursor-pointer transition-all duration-300 border-2 bg-white/10 hover:bg-white/20',
                           isSelected
-                            ? 'border-white bg-white/25 ring-2 ring-white/70 shadow-[0_8px_24px_-8px_rgba(231,160,37,0.7)]'
+                            ? 'border-white ring-2 ring-white/70 shadow-lg'
                             : 'border-white/25'
                         )}
+                        style={isSelected ? { backgroundColor: cfg.hex } : undefined}
                         onClick={() => onPlaceClick(place.name, place.coordinates)}
                       >
                         <div className="space-y-3">
-                           <div className="flex items-start gap-2">
-                            <Icon className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: cfg.hex }} />
+                           <div className="flex items-center gap-2.5">
+                            <CategoryIcon type={type} size="sm" />
                             <h4 className="font-medium text-nav-foreground leading-tight">
                               {place.name}
                             </h4>

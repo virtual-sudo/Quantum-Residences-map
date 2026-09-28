@@ -184,6 +184,11 @@
   margin-top: 2px;
 }
 
+/* Keep popups above the Quantum Residences home marker (z-index 1000) */
+.maplibregl-popup {
+  z-index: 1100 !important;
+}
+
 .maplibregl-popup-tip {
   border-top-color: #742C7B !important;
 }
