@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import MapView from '@/components/MapView';
 import PlaceSidebar, { places, CategoryKey } from '@/components/PlaceSidebar';
+import { OfflineMapButton, ExitMapButton } from '@/components/MapHeaderActions';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { KeyRound, MapPin } from 'lucide-react';
+import { KeyRound } from 'lucide-react';
+import quantumLogo from '@/assets/quantum-logo.png';
 
 const Index = () => {
   const [apiKey, setApiKey] = useState('TzNncyeb8gVUMH68QKMX');
@@ -14,22 +16,44 @@ const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState<CategoryKey | null>(null);
   const [selectedPlace, setSelectedPlace] = useState<string | null>(null);
 
+  const [isExited, setIsExited] = useState(false);
+
+  // The tour can re-show the map by posting { type: 'pbw-map-open' }
+  useEffect(() => {
+    const onMessage = (e: MessageEvent) => {
+      if (e.data?.type === 'pbw-map-open') setIsExited(false);
+    };
+    window.addEventListener('message', onMessage);
+    return () => window.removeEventListener('message', onMessage);
+  }, []);
+
+  // Let the tour show through the frame while the map is hidden
+  useEffect(() => {
+    document.documentElement.style.background = isExited ? 'transparent' : '';
+    document.body.style.background = isExited ? 'transparent' : '';
+  }, [isExited]);
+
   const handleApiKeySubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setApiKey(tempApiKey);
   };
 
+  if (isExited) return null;
+
   return (
     <div className="h-screen w-full flex flex-col bg-background">
       <header className="h-16 border-b border-white/20 bg-nav-background flex items-center justify-between px-6 shadow-sm">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-white/15 rounded-lg">
-            <MapPin className="w-5 h-5 text-nav-foreground" />
-          </div>
+          <img src={quantumLogo} alt="Quantum Residences logo" className="h-14 w-auto" />
           <div>
             <h1 className="text-xl font-bold text-nav-foreground">Quantum Residences</h1>
             <p className="text-xs text-nav-foreground/85">Intersection of Taft & Buendia, Pasay</p>
           </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <OfflineMapButton apiKey={apiKey} />
+          <ExitMapButton onExit={() => setIsExited(true)} />
         </div>
       </header>
 

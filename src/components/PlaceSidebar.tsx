@@ -2,13 +2,13 @@ import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import {
+  Home,
   Bus,
   Church,
   ShoppingBag,
   GraduationCap,
   Navigation,
   Car,
-  Home,
   Building,
   BedDouble,
   Landmark,
@@ -19,6 +19,7 @@ import {
 import * as AccordionPrimitive from '@radix-ui/react-accordion';
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
+import quantumLogo from '@/assets/quantum-logo.png';
 
 export type CategoryKey = 'healthcare' | 'transport' | 'worship' | 'mall' | 'school' | 'hotel' | 'residential' | 'historical sites';
 
@@ -253,7 +254,7 @@ const PlaceSidebar = ({
             >
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <Home className="w-4 h-4 text-nav-foreground" />
+                  <img src={quantumLogo} alt="" className="h-9 w-auto flex-shrink-0" />
                   <h4 className="font-semibold text-nav-foreground">Quantum Residences</h4>
                 </div>
                 <p className="text-xs text-nav-foreground/80">
